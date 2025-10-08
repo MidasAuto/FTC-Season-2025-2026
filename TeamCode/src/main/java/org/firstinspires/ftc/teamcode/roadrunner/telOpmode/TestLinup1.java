@@ -1,10 +1,12 @@
 package org.firstinspires.ftc.teamcode.roadrunner.telOpmode;
 
+import com.acmerobotics.roadrunner.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-
+import com.acmerobotics.roadrunner.Vector2d;
+import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 @TeleOp(name = "LinupTest")
 public class TestLinup1 extends OpMode {
 
@@ -14,14 +16,12 @@ public class TestLinup1 extends OpMode {
     DcMotor backLeftMotor;
 
     // Tweak this slightly if the left side still feels faster (ex: 0.95 -> 0.92)
-    double leftMotorSpeedFactor = 0.95;
-
     @Override
     public void init() {
-        frontRightMotor = hardwareMap.get(DcMotor.class, "frontRightMotor");
-        frontLeftMotor  = hardwareMap.get(DcMotor.class, "frontLeftMotor");
-        backLeftMotor   = hardwareMap.get(DcMotor.class, "backLeftMotor");
-        backRightMotor  = hardwareMap.get(DcMotor.class, "backRightMotor");
+        frontRightMotor = hardwareMap.get(DcMotor.class, "rightFront");
+        frontLeftMotor  = hardwareMap.get(DcMotor.class, "leftFront");
+        backLeftMotor   = hardwareMap.get(DcMotor.class, "leftBack");
+        backRightMotor  = hardwareMap.get(DcMotor.class, "rightBack");
 
         // ORIGINAL: only frontLeft reversed
         frontLeftMotor.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -43,58 +43,50 @@ public class TestLinup1 extends OpMode {
 
     @Override
     public void loop() {
-        /*
-        drive.update();
+        // Example: Getting the current estimated pose
+        double xCord = 0;
+        double yCord = 0;
+        Vector2d vector2d = new Vector2d(xCord, yCord);
 
-        Pose2d poseEstimate = drive.getPoseEstimate();
-
-        double x = poseEstimate.getX();
-        double y = poseEstimate.getY();
-        double heading = poseEstimate.getHeading();
-
-         */
-
-        double drive  = gamepad1.left_stick_y; // forward/back
+        double driver = gamepad1.left_stick_y; // forward/back
         double strafe = gamepad1.left_stick_x;  // left/right
-        double turn   = -gamepad1.right_stick_x;   // rotation
+        double turn = -gamepad1.right_stick_x;   // rotation
 
         boolean shotLinup = gamepad1.dpad_up;
 
-        double xCord = 60;
-        double yCord = 45;
         double targetCordx = 100;
         double targetCordy = 100;
-
 
 
         double adj = targetCordx - xCord;
         double opp = targetCordy - yCord;
 
         double actualAngle = 180;
-        double targetAngle = Math.atan2(opp,adj);
+        double targetAngle = Math.atan2(opp, adj);
         double andgleDiff = targetAngle - actualAngle;
 
+        double drive_angle = 0;
         if ((shotLinup) && (gamepad1.left_stick_y != 0 || gamepad1.left_stick_x != 0)) {
-            double drive_angle = Math.atan2(gamepad1.left_stick_y,gamepad1.left_stick_x);
+            drive_angle = Math.atan2(gamepad1.left_stick_y, gamepad1.left_stick_x);
 
-            double r = Math.sqrt(gamepad1.left_stick_x*gamepad1.left_stick_x + gamepad1.left_stick_x*gamepad1.left_stick_x); // sqrt(2) ≈ 1.414
+            double r = Math.sqrt(gamepad1.left_stick_x * gamepad1.left_stick_x + gamepad1.left_stick_x * gamepad1.left_stick_x); // sqrt(2) ≈ 1.414
 
-            drive = r * Math.cos(drive_angle);
+            driver = r * Math.cos(drive_angle);
             strafe = r * Math.sin(drive_angle);
         }
 
         if (targetAngle - actualAngle > 5) {
-            turn = (andgleDiff/10)*(andgleDiff/10)/(andgleDiff/10)*(andgleDiff/10);
+            turn = (andgleDiff / 10) * (andgleDiff / 10) / (andgleDiff / 10) * (andgleDiff / 10);
         } else if (targetAngle - actualAngle < -5) {
-            turn = -(andgleDiff/10)*(andgleDiff/10)*(andgleDiff/10)*(andgleDiff/10);
+            turn = -(andgleDiff / 10) * (andgleDiff / 10) * (andgleDiff / 10) * (andgleDiff / 10);
         }
         // keep your original stick mapping
 
         // motor power calc with left-side compensation
-        double fRightPower = drive + turn + strafe;
-        double fLeftPower  = (drive - turn - strafe) * leftMotorSpeedFactor;
-        double bRightPower = drive + turn - strafe;
-        double bLeftPower  = (drive - turn + strafe) * leftMotorSpeedFactor;
+        double fRightPower = driver + turn + strafe;
+        double fLeftPower = (driver - turn - strafe);
+        double bRightPower = driver + turn - strafe;
+        double bLeftPower = (driver - turn + strafe);
 
         // normalize so no value exceeds ±1
         double max = Math.max(1.0,
@@ -103,9 +95,9 @@ public class TestLinup1 extends OpMode {
                                 Math.max(Math.abs(bRightPower), Math.abs(bLeftPower)))));
 
         fRightPower /= max;
-        fLeftPower  /= max;
+        fLeftPower /= max;
         bRightPower /= max;
-        bLeftPower  /= max;
+        bLeftPower /= max;
 
         double oppositeSide = 5.0; // Example value
         double adjacentSide = 12.0; // Example value
@@ -126,6 +118,13 @@ public class TestLinup1 extends OpMode {
         backLeftMotor.setPower(bLeftPower);
 
         // quick debug telemetry
+        telemetry.update();
+        telemetry.addData("XCord", xCord);
+        telemetry.addData("YCord", yCord);
+        telemetry.addData("drive", driver);
+        telemetry.addData("strafe", strafe);
+        telemetry.addData("turn", turn);
+        telemetry.addData("drive angle", drive_angle);
 
     }
 }
