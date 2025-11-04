@@ -62,10 +62,10 @@ public class Noah extends OpMode {
         double turn   = -gamepad1.right_stick_x;   // rotation
         double rampAngle1 = gamepad2.left_stick_y/1.85-0.35;
 
-        double fRightPower = 0;
-        double fLeftPower = 0;
-        double bRightPower = 0;
-        double bLeftPower = 0;
+        double fRightPower;
+        double fLeftPower;
+        double bRightPower;
+        double bLeftPower;
 
         // motor power calc with left-side compensation
         if (gamepad2.left_bumper && gamepad2.right_bumper) {

@@ -16,6 +16,7 @@ public class TestLinup1 extends OpMode {
     DcMotor backLeftMotor;
 
     // Tweak this slightly if the left side still feels faster (ex: 0.95 -> 0.92)
+
     @Override
     public void init() {
         frontRightMotor = hardwareMap.get(DcMotor.class, "rightFront");
@@ -43,6 +44,7 @@ public class TestLinup1 extends OpMode {
 
     @Override
     public void loop() {
+
         // Example: Getting the current estimated pose
         double xCord = 0;
         double yCord = 0;
@@ -68,47 +70,19 @@ public class TestLinup1 extends OpMode {
         double drive_angle = 0;
         if ((shotLinup) && (gamepad1.left_stick_y != 0 || gamepad1.left_stick_x != 0)) {
             drive_angle = Math.atan2(gamepad1.left_stick_y, gamepad1.left_stick_x);
-
-            double r = Math.sqrt(gamepad1.left_stick_x * gamepad1.left_stick_x + gamepad1.left_stick_x * gamepad1.left_stick_x); // sqrt(2) ≈ 1.414
-
-            driver = r * Math.cos(drive_angle);
-            strafe = r * Math.sin(drive_angle);
         }
 
-        if (targetAngle - actualAngle > 5) {
-            turn = (andgleDiff / 10) * (andgleDiff / 10) / (andgleDiff / 10) * (andgleDiff / 10);
-        } else if (targetAngle - actualAngle < -5) {
-            turn = -(andgleDiff / 10) * (andgleDiff / 10) * (andgleDiff / 10) * (andgleDiff / 10);
-        }
-        // keep your original stick mapping
-
-        // motor power calc with left-side compensation
         double fRightPower = driver + turn + strafe;
         double fLeftPower = (driver - turn - strafe);
         double bRightPower = driver + turn - strafe;
         double bLeftPower = (driver - turn + strafe);
-
-        // normalize so no value exceeds ±1
-        double max = Math.max(1.0,
-                Math.max(Math.abs(fRightPower),
-                        Math.max(Math.abs(fLeftPower),
-                                Math.max(Math.abs(bRightPower), Math.abs(bLeftPower)))));
-
-        fRightPower /= max;
-        fLeftPower /= max;
-        bRightPower /= max;
-        bLeftPower /= max;
 
         double oppositeSide = 5.0; // Example value
         double adjacentSide = 12.0; // Example value
 
         // Calculate the tangent ratio
         double tangentRatio = oppositeSide / adjacentSide;
-
-        // Calculate the angle in radians using Math.atan()
         double angleInRadians = Math.atan(tangentRatio);
-
-        // Convert the angle from radians to degrees (optional, for readability)
         double angleInDegrees = Math.toDegrees(angleInRadians);
 
         // apply power

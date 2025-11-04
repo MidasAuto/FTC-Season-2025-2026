@@ -2,19 +2,18 @@ package org.firstinspires.ftc.teamcode.roadrunner.telOpmode;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.util.ElapsedTime;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.ArrayList;
 
 
 @TeleOp(name = "Jony")
-public class Jony extends OpMode {
+public class JonyTest extends OpMode {
 
     DcMotor frontRightMotor;
     DcMotor frontLeftMotor;
