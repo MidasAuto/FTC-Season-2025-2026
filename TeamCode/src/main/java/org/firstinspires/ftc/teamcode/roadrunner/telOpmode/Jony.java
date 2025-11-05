@@ -132,39 +132,45 @@ public class Jony extends OpMode {
         if (xcurrent && !xpreveous) {
             if (shootMode) {
                 shootMode = false;
-                target_value += 89;
+                target_value += 90;
                 sorterMoving = true;
             }
             else {
                 shootMode = true;
-                target_value -= 89;
+                target_value -= 90;
                 sorterMoving = true;
             }
         }
         if (leftBumperCurrent && !leftBumperPreveous) {
-            target_value -= 178;
+            target_value -= 180;
             sorterMoving = true;
         }
         if (rightBumperCurrent && !rightBumberPreveous) {
-            target_value += 178;
+            target_value += 180;
             sorterMoving = true;
         }
-        if (gamepad2.left_trigger > 0) {
+        if (gamepad1.left_trigger > 0) {
             intakeMoter.setPower(1);
+        } else if (gamepad1.right_trigger > 0) {
+            intakeMoter.setPower(-1);
         } else {
             intakeMoter.setPower(0);
         }
         if (gamepad2.right_trigger > 0 && shootMode) {
             launch1.setPower(1);
             launch2.setPower(1);
-        } else {
+        } else if (gamepad2.left_trigger > 0 && shootMode){
+            launch1.setPower(-1);
+            launch2.setPower(-1);
+        }
+        else {
             launch1.setPower(0);
             launch2.setPower(0);
         }
         if (gamepad2.y && shootMode) {
-            launchServo.setPosition(0.5);
+            launchServo.setPosition(0);
         } else {
-            launchServo.setPosition(0.7);
+            launchServo.setPosition(1);
         }
 
         if (sorterMoving) {
@@ -194,9 +200,6 @@ public class Jony extends OpMode {
         telemetry.addData("SorterMoving", sorterMoving);
         telemetry.addData("Sorter Pos", sorterMotor.getCurrentPosition());
         telemetry.addData("target Pos", target_value);
-        telemetry.addData("ServoTerget", launchServo.getPosition());
-        telemetry.addData("Good", shootMode);
-        telemetry.addData("y", gamepad2.y);
         /*telemetry.addData("CheckForBall", checkForBall());
         telemetry.addData("holder value: ", holderOne.get(1))
          */
