@@ -179,6 +179,14 @@ public class Auto1 extends LinearOpMode {
 
     }
 
+    public void telemetry() {
+
+        telemetry.addData("Pos0", sorter.get(0));
+        telemetry.addData("Pos1", sorter.get(1));
+        telemetry.addData("Pos2", sorter.get(2));
+
+        telemetry.update();
+    }
     /// ShootAction
 
 
