@@ -20,35 +20,47 @@ import java.util.List;
 
 public class Auto1 extends LinearOpMode {
 
+    boolean intakeTest = false;
+
     List<Integer> sorter = new ArrayList<>(Arrays.asList(0,0,0));
-    // The order has list pos "0" as the first slot in the clockwise direction of the intake postion, the intake in the lost pos is 2
+    // The order has list pos "0" as the first slot in the clockwise direction of the intake position, the intake in the lost pos is 2
     // this ignores half steps
     // Nothing = value "0", green = value "1", purple = value "2"
 
+    /// This class detects color and sets the first position in the list
     public class CheckColor {
         ColorSensor checkColorSensor;
-        double blueValue = checkColorSensor.blue();
-        double greenValue = checkColorSensor.green();
         double targetValue;
         boolean greenTrue, purpleTrue, ballThere = false;
         public CheckColor(HardwareMap hardwareMap) {
             checkColorSensor = hardwareMap.get(ColorSensor.class, "checkColorSensor");
+        }
 
+        public void checkBall() {
+            double blueValue = checkColorSensor.blue();
+            double greenValue = checkColorSensor.green();
             if (greenValue > 100) {
                 ballThere = true;
             }
-
             if (blueValue > greenValue && ballThere) {
                 purpleTrue = true;
                 greenTrue = false;
                 sorter.set(2,1);
+                targetValue += 180;
             } else if (blueValue < greenValue && ballThere) {
                 greenTrue = true;
                 purpleTrue = false;
                 sorter.set(2,2);
+                targetValue += 180;
+            } else {
+                greenTrue = false;
+                purpleTrue = false;
             }
         }
 
+    }
+
+    public void getCheckColor() {
     }
 
     /// Intake Actions
@@ -70,10 +82,6 @@ public class Auto1 extends LinearOpMode {
             public boolean run(@NonNull TelemetryPacket packet) {
 
                 intakeMotor.setPower(1);
-
-                if (checkColorSensor.alpha() > 100) {
-
-                }
 
                 return false;
             }
@@ -118,19 +126,45 @@ public class Auto1 extends LinearOpMode {
 
         double pattern;
         DcMotor sorterMotor;
+        CheckColor checkColor;
+
 
 
         public SorterMove(HardwareMap hardwareMap) {
             sorterMotor = hardwareMap.get(DcMotor.class, "spedMotor");
+            sorterMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         }
+
+
 
         public class SorterMoveAction implements Action {
             public boolean run(@NonNull TelemetryPacket packet) {
 
-                if (pattern == 21) {
+                double currPos = sorterMotor.getCurrentPosition();
+
+                if (pattern == 1) {
+                    sorter.indexOf(1);
+                }
+
+                if (pattern == 2) {
 
                 }
 
+                if (pattern == 3) {
+
+                }
+
+                if (currPos <= checkColor.targetValue-7 || currPos >= checkColor.targetValue+7) {
+                    if (currPos < checkColor.targetValue) {
+                        sorterMotor.setPower(0.3);
+                    }
+                    else if (currPos > checkColor.targetValue) {
+                        sorterMotor.setPower(-0.3);
+                    }
+                }
+                else if (currPos >= checkColor.targetValue-7 && currPos <= checkColor.targetValue+7){
+                    sorterMotor.setPower(0);
+                }
                 return false;
             }
         }
@@ -152,8 +186,16 @@ public class Auto1 extends LinearOpMode {
         Intake intake = new Intake(hardwareMap);
         IntakeStop intakeStop = new IntakeStop(hardwareMap);
         SorterMove sorterMove = new SorterMove(hardwareMap);
+        CheckColor checkColor = new CheckColor(hardwareMap);
+
 
         waitForStart();
+        new Thread(() -> {
+            while (opModeIsActive()) {
+                checkColor.checkBall();
+            }
+        }).start();
+
 
         Actions.runBlocking(
                 drive.actionBuilder(startPose)
