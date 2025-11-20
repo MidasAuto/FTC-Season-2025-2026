@@ -2,17 +2,22 @@ package org.firstinspires.ftc.teamcode.roadrunner.telOpmode;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
-import java.util.ArrayList;
+
+import org.firstinspires.ftc.vision.VisionPortal;
+import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
+
 import java.util.Arrays;
 import java.util.List;
+import java.util.ArrayList;
 
 
-@TeleOp(name = "Jony")
+@TeleOp(name = "JonyT")
 public class JonyTest extends OpMode {
 
     DcMotor frontRightMotor;
@@ -26,6 +31,7 @@ public class JonyTest extends OpMode {
     ColorSensor checkColorSensor;
     Servo launchServo;
     Servo rampAngle;
+    Servo locker;
 
 
     double redValue = 1;
@@ -62,6 +68,7 @@ public class JonyTest extends OpMode {
         //servos
         launchServo = hardwareMap.get(Servo.class, "launchServo");
         rampAngle = hardwareMap.get(Servo.class, "rampAngle");
+        locker = hardwareMap.get(Servo.class, "locker");
         //Color sensor
         checkColorSensor = hardwareMap.get(ColorSensor.class, "checkColorSensor");
 
@@ -122,6 +129,12 @@ public class JonyTest extends OpMode {
         backLeftMotor.setPower(bLeftPower);
         rampAngle.setPosition(0.5);
 
+        VisionPortal.Builder myVisionPortalBuilder;
+        VisionPortal myVisionPortal;
+// Create a new VisionPortal Builder object.
+        myVisionPortalBuilder = new VisionPortal.Builder();
+
+
         //Read color sensor value
         if (checkForBall() && !sorterMoving && !shootMode) {
             checkColor();
@@ -131,39 +144,59 @@ public class JonyTest extends OpMode {
         if (xcurrent && !xpreveous) {
             if (shootMode) {
                 shootMode = false;
-                target_value += 89;
+                target_value += 90;
                 sorterMoving = true;
             }
             else {
                 shootMode = true;
-                target_value -= 89;
+                target_value -= 90;
                 sorterMoving = true;
             }
         }
         if (leftBumperCurrent && !leftBumperPreveous) {
-            target_value -= 178;
+            target_value -= 180;
             sorterMoving = true;
+            move_slots(-1);
         }
         if (rightBumperCurrent && !rightBumberPreveous) {
-            target_value += 178;
+            target_value += 180;
             sorterMoving = true;
+            move_slots(1);
         }
-        if (gamepad2.left_trigger > 0) {
+        if (gamepad1.left_trigger > 0) {
             intakeMoter.setPower(1);
+        } else if (gamepad1.right_trigger > 0) {
+            intakeMoter.setPower(-1);
         } else {
             intakeMoter.setPower(0);
         }
         if (gamepad2.right_trigger > 0 && shootMode) {
             launch1.setPower(1);
             launch2.setPower(1);
-        } else {
+        } else if (gamepad2.left_trigger > 0 && shootMode){
+            launch1.setPower(-1);
+            launch2.setPower(-1);
+        }
+        else {
             launch1.setPower(0);
             launch2.setPower(0);
         }
         if (gamepad2.y && shootMode) {
-            launchServo.setPosition(0.5);
+            launchServo.setPosition(0);
         } else {
-            launchServo.setPosition(0.7);
+            launchServo.setPosition(1);
+        }
+        if (gamepad2.dpad_right) {
+            target_value += 3;
+        }
+        if (gamepad2.dpad_left) {
+            target_value -= 3;
+        }
+        if (gamepad2.dpad_down) {
+            locker.setPosition(0.68);
+        }
+        if (gamepad2.dpad_up) {
+            locker.setPosition((0.75));
         }
 
         if (sorterMoving) {
@@ -190,15 +223,14 @@ public class JonyTest extends OpMode {
         telemetry.addData("Red: ", redValue);
         telemetry.addData("Green: ", greenValue);
         telemetry.addData("Blue: ", blueValue);
-        telemetry.addData("SorterMoving", sorterMoving);
+        /*telemetry.addData("SorterMoving", sorterMoving);
         telemetry.addData("Sorter Pos", sorterMotor.getCurrentPosition());
-        telemetry.addData("target Pos", target_value);
-        telemetry.addData("ServoTerget", launchServo.getPosition());
-        telemetry.addData("Good", shootMode);
-        telemetry.addData("y", gamepad2.y);
-        /*telemetry.addData("CheckForBall", checkForBall());
-        telemetry.addData("holder value: ", holderOne.get(1))
-         */
+        telemetry.addData("target Pos", target_value);*/
+        telemetry.addData("CheckForBall", checkForBall());
+        telemetry.addData("holderOne value: ", holderOne.get(1));
+        telemetry.addData("holderTwo value: ", holderTwo.get(1));
+        telemetry.addData("holderThree value: ", holderThree.get(1));
+
         telemetry.update();
     }
     public void checkColor() {
@@ -262,6 +294,30 @@ public class JonyTest extends OpMode {
         int currpos = sorterMotor.getCurrentPosition();
         if (currpos <= target_value-7 || currpos >= target_value+7) {
             sorterMoving = true;
+        }
+    }
+    public void move_slots(int distance) {
+        holderOne.set(0, holderOne.get(0) + distance);
+        holderTwo.set(0, holderTwo.get(0) + distance);
+        holderThree.set(0, holderThree.get(0) + distance);
+
+        if (holderOne.get(0) > 2) {
+            holderOne.set(0, 0);
+        }
+        else if (holderOne.get(0) < 0) {
+            holderOne.set(0, 2);
+        }
+        if (holderTwo.get(0) > 2) {
+            holderTwo.set(0, 0);
+        }
+        else if (holderTwo.get(0) < 0) {
+            holderTwo.set(0, 2);
+        }
+        if (holderThree.get(0) > 2) {
+            holderThree.set(0, 0);
+        }
+        else if (holderThree.get(0) < 0) {
+            holderThree.set(0, 2);
         }
     }
 }

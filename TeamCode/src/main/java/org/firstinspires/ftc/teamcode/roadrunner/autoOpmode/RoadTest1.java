@@ -73,6 +73,8 @@ public class RoadTest1 extends OpMode {
         //sorterMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
 
+
+
     @Override
     public void loop() {
         /*
@@ -80,13 +82,14 @@ public class RoadTest1 extends OpMode {
                 .strafeRight(10)
                 .forward(5)
                 .build();
-    }
 
+         */
+    }
+        /*
     @Override
     public void runOpMode() {
 
     }
 
-         */
-    }
+     */
 }

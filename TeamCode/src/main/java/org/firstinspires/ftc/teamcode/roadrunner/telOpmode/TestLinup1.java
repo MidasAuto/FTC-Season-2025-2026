@@ -14,6 +14,7 @@ public class TestLinup1 extends OpMode {
     DcMotor frontLeftMotor;
     DcMotor backRightMotor;
     DcMotor backLeftMotor;
+    double posx, posy;
 
     // Tweak this slightly if the left side still feels faster (ex: 0.95 -> 0.92)
 
@@ -44,6 +45,10 @@ public class TestLinup1 extends OpMode {
 
     @Override
     public void loop() {
+
+        Pose2d pos1 = new Pose2d(posx, posy, 0);
+
+        double twenty = pos1.position.x;
 
         // Example: Getting the current estimated pose
         double xCord = 0;
@@ -93,7 +98,7 @@ public class TestLinup1 extends OpMode {
 
         // quick debug telemetry
         telemetry.update();
-        telemetry.addData("XCord", xCord);
+        telemetry.addData("XCord", twenty);
         telemetry.addData("YCord", yCord);
         telemetry.addData("drive", driver);
         telemetry.addData("strafe", strafe);

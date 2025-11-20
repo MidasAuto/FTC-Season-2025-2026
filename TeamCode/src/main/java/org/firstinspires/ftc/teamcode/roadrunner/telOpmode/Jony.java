@@ -8,6 +8,8 @@ import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.ArrayList;
@@ -27,6 +29,7 @@ public class Jony extends OpMode {
     ColorSensor checkColorSensor;
     Servo launchServo;
     Servo rampAngle;
+    Servo locker;
 
 
     double redValue = 1;
@@ -63,6 +66,7 @@ public class Jony extends OpMode {
         //servos
         launchServo = hardwareMap.get(Servo.class, "launchServo");
         rampAngle = hardwareMap.get(Servo.class, "rampAngle");
+        locker = hardwareMap.get(Servo.class, "locker");
         //Color sensor
         checkColorSensor = hardwareMap.get(ColorSensor.class, "checkColorSensor");
 
@@ -144,10 +148,12 @@ public class Jony extends OpMode {
         if (leftBumperCurrent && !leftBumperPreveous) {
             target_value -= 180;
             sorterMoving = true;
+            move_slots(-1);
         }
         if (rightBumperCurrent && !rightBumberPreveous) {
             target_value += 180;
             sorterMoving = true;
+            move_slots(1);
         }
         if (gamepad1.left_trigger > 0) {
             intakeMoter.setPower(1);
@@ -171,6 +177,18 @@ public class Jony extends OpMode {
             launchServo.setPosition(0);
         } else {
             launchServo.setPosition(1);
+        }
+        if (gamepad2.dpad_right) {
+            target_value += 3;
+        }
+        if (gamepad2.dpad_left) {
+            target_value -= 3;
+        }
+        if (gamepad2.dpad_down) {
+            locker.setPosition(0.68);
+        }
+        if (gamepad2.dpad_up) {
+            locker.setPosition((0.75));
         }
 
         if (sorterMoving) {
@@ -197,12 +215,14 @@ public class Jony extends OpMode {
         telemetry.addData("Red: ", redValue);
         telemetry.addData("Green: ", greenValue);
         telemetry.addData("Blue: ", blueValue);
-        telemetry.addData("SorterMoving", sorterMoving);
+        /*telemetry.addData("SorterMoving", sorterMoving);
         telemetry.addData("Sorter Pos", sorterMotor.getCurrentPosition());
-        telemetry.addData("target Pos", target_value);
-        /*telemetry.addData("CheckForBall", checkForBall());
-        telemetry.addData("holder value: ", holderOne.get(1))
-         */
+        telemetry.addData("target Pos", target_value);*/
+        telemetry.addData("CheckForBall", checkForBall());
+        telemetry.addData("holderOne value: ", holderOne.get(1));
+        telemetry.addData("holderTwo value: ", holderTwo.get(1));
+        telemetry.addData("holderThree value: ", holderThree.get(1));
+
         telemetry.update();
     }
     public void checkColor() {
@@ -266,6 +286,30 @@ public class Jony extends OpMode {
         int currpos = sorterMotor.getCurrentPosition();
         if (currpos <= target_value-7 || currpos >= target_value+7) {
             sorterMoving = true;
+        }
+    }
+    public void move_slots(int distance) {
+        holderOne.set(0, holderOne.get(0) + distance);
+        holderTwo.set(0, holderTwo.get(0) + distance);
+        holderThree.set(0, holderThree.get(0) + distance);
+
+        if (holderOne.get(0) > 2) {
+            holderOne.set(0, 0);
+        }
+        else if (holderOne.get(0) < 0) {
+            holderOne.set(0, 2);
+        }
+        if (holderTwo.get(0) > 2) {
+            holderTwo.set(0, 0);
+        }
+        else if (holderTwo.get(0) < 0) {
+            holderTwo.set(0, 2);
+        }
+        if (holderThree.get(0) > 2) {
+            holderThree.set(0, 0);
+        }
+        else if (holderThree.get(0) < 0) {
+            holderThree.set(0, 2);
         }
     }
 }
