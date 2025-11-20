@@ -31,7 +31,7 @@ public class Auto1 extends LinearOpMode {
     public class CheckColor {
         ColorSensor checkColorSensor;
         double targetValue;
-        boolean greenTrue, purpleTrue, ballThere = false;
+        boolean greenTrue, purpleTrue, ballThere = false, sorterMoving = false;
         public CheckColor(HardwareMap hardwareMap) {
             checkColorSensor = hardwareMap.get(ColorSensor.class, "checkColorSensor");
         }
@@ -42,15 +42,15 @@ public class Auto1 extends LinearOpMode {
             if (greenValue > 100) {
                 ballThere = true;
             }
-            if (blueValue > greenValue && ballThere) {
+            if (blueValue > greenValue && ballThere && !sorterMoving) {
                 purpleTrue = true;
                 greenTrue = false;
-                sorter.set(2,1);
+                sorter.set(0,1);
                 targetValue += 180;
-            } else if (blueValue < greenValue && ballThere) {
+            } else if (blueValue < greenValue && ballThere && !sorterMoving) {
                 greenTrue = true;
                 purpleTrue = false;
-                sorter.set(2,2);
+                sorter.set(0,2);
                 targetValue += 180;
             } else {
                 greenTrue = false;
@@ -128,44 +128,48 @@ public class Auto1 extends LinearOpMode {
         DcMotor sorterMotor;
         CheckColor checkColor;
 
-
-
         public SorterMove(HardwareMap hardwareMap) {
             sorterMotor = hardwareMap.get(DcMotor.class, "spedMotor");
             sorterMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         }
 
-
-
         public class SorterMoveAction implements Action {
             public boolean run(@NonNull TelemetryPacket packet) {
 
-                double currPos = sorterMotor.getCurrentPosition();
+                double currPos = sorterMotor.getCurrentPosition(), greenPosNeed = 0;
 
                 if (pattern == 1) {
-                    sorter.indexOf(1);
+                    greenPosNeed = 0;
+                } else if (pattern == 2) {
+                    greenPosNeed = 1;
+                } else if (pattern == 3) {
+                    greenPosNeed = 2;
                 }
 
-                if (pattern == 2) {
-
-                }
-
-                if (pattern == 3) {
-
+                if (greenPosNeed < sorter.indexOf(1)) {
+                    checkColor.targetValue += 180;
+                    sorter.set(sorter.indexOf(1), 2);
+                    sorter.set(sorter.indexOf(1)+1, 1);
+                } else if (greenPosNeed > sorter.indexOf(1)) {
+                    checkColor.targetValue -= 180;
+                    sorter.set(sorter.indexOf(1), 2);
+                    sorter.set(sorter.indexOf(1)-1, 1);
                 }
 
                 if (currPos <= checkColor.targetValue-7 || currPos >= checkColor.targetValue+7) {
                     if (currPos < checkColor.targetValue) {
                         sorterMotor.setPower(0.3);
+                        checkColor.sorterMoving = true;
                     }
                     else if (currPos > checkColor.targetValue) {
                         sorterMotor.setPower(-0.3);
+                        checkColor.sorterMoving = true;
                     }
                 }
                 else if (currPos >= checkColor.targetValue-7 && currPos <= checkColor.targetValue+7){
                     sorterMotor.setPower(0);
                 }
-                return false;
+                return true;
             }
         }
 
