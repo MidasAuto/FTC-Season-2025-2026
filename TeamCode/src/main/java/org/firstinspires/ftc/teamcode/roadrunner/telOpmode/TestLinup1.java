@@ -1,12 +1,20 @@
 package org.firstinspires.ftc.teamcode.roadrunner.telOpmode;
 
+import static org.firstinspires.ftc.teamcode.roadrunner.autoOpmode.Auto1.PoseStorage.currentPose;
+
 import com.acmerobotics.roadrunner.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.acmerobotics.roadrunner.Vector2d;
+
+import org.firstinspires.ftc.teamcode.roadrunner.Localizer;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
+import org.firstinspires.ftc.teamcode.roadrunner.TwoDeadWheelLocalizer;
+import org.firstinspires.ftc.teamcode.roadrunner.autoOpmode.Auto1;
+import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive.DriveLocalizer;
+
 @TeleOp(name = "LinupTest")
 public class TestLinup1 extends OpMode {
 
@@ -17,6 +25,7 @@ public class TestLinup1 extends OpMode {
     double posx, posy;
 
     // Tweak this slightly if the left side still feels faster (ex: 0.95 -> 0.92)
+
 
     @Override
     public void init() {
@@ -41,14 +50,15 @@ public class TestLinup1 extends OpMode {
         frontLeftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         backRightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         backLeftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+
     }
 
     @Override
     public void loop() {
 
-        Pose2d pos1 = new Pose2d(posx, posy, 0);
 
-        double twenty = pos1.position.x;
+
 
         // Example: Getting the current estimated pose
         double xCord = 0;
@@ -98,7 +108,6 @@ public class TestLinup1 extends OpMode {
 
         // quick debug telemetry
         telemetry.update();
-        telemetry.addData("XCord", twenty);
         telemetry.addData("YCord", yCord);
         telemetry.addData("drive", driver);
         telemetry.addData("strafe", strafe);

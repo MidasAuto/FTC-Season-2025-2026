@@ -21,6 +21,20 @@ import java.util.List;
 
 public class Auto1 extends LinearOpMode {
 
+
+    public static class PoseStorage {
+        // See this static keyword? That's what lets us share the data between opmodes.
+        public static Pose2d currentPose = new Pose2d(1,2,1);
+
+        public PoseStorage(Pose2d currentPose) {
+
+        }
+
+        public void getClass(Pose2d currentPose) {
+
+        }
+    }
+
     boolean intakeTest = false;
 
     List<Integer> sorter = new ArrayList<>(Arrays.asList(0,0,0));
@@ -237,5 +251,7 @@ public class Auto1 extends LinearOpMode {
 
 
         );
+
+        PoseStorage.currentPose = drive.getPose();
     }
 }
