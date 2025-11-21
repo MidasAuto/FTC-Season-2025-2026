@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.Pose2d;
+import com.acmerobotics.roadrunner.ftc.PinpointEncoder;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -60,22 +61,14 @@ public class Auto1 extends LinearOpMode {
 
     }
 
-    public void getCheckColor() {
-    }
-
     /// Intake Actions
 
     // Intake Start
     public class Intake {
         DcMotor intakeMotor;
-        DcMotor sorterMotor;
-        ColorSensor checkColorSensor;
-        double targetValue;
 
         public Intake(HardwareMap hardwareMap) {
             intakeMotor = hardwareMap.get(DcMotor.class, "intakeMotor");
-            sorterMotor = hardwareMap.get(DcMotor.class, "spedMotor");
-            checkColorSensor = hardwareMap.get(ColorSensor.class, "checkColorSensor");
         }
 
         public class IntakeAction implements Action {
@@ -187,9 +180,34 @@ public class Auto1 extends LinearOpMode {
 
         telemetry.update();
     }
+
     /// ShootAction
 
+    public class Shoot {
+        DcMotor launch1;
+        DcMotor launch2;
 
+        public Shoot(HardwareMap hardwareMap) {
+            launch1 = hardwareMap.get(DcMotor.class, "launch1");
+            launch2 = hardwareMap.get(DcMotor.class, "launch2");
+        }
+
+        public class ShootAction implements Action {
+            public boolean run(@NonNull TelemetryPacket packet) {
+
+               double shootAlgy;
+
+
+
+                return false;
+            }
+        }
+
+        public Action shootAction(){
+            return new ShootAction();
+        }
+
+    }
 
     @Override
     public void runOpMode() {
