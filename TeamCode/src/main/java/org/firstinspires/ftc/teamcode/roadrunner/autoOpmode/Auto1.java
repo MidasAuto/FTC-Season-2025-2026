@@ -24,7 +24,7 @@ public class Auto1 extends LinearOpMode {
 
     public static class PoseStorage {
         // See this static keyword? That's what lets us share the data between opmodes.
-        public static Pose2d currentPose = new Pose2d(1,2,1);
+        public static Pose2d currentPose = new Pose2d(null, null);
 
         public PoseStorage(Pose2d currentPose) {
 

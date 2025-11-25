@@ -1,14 +1,13 @@
 package org.firstinspires.ftc.teamcode.roadrunner.telOpmode;
 
 import static org.firstinspires.ftc.teamcode.roadrunner.autoOpmode.Auto1.PoseStorage.currentPose;
-
 import com.acmerobotics.roadrunner.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.acmerobotics.roadrunner.Vector2d;
-
+import org.firstinspires.ftc.teamcode.roadrunner.PinpointDrive;
 import org.firstinspires.ftc.teamcode.roadrunner.Localizer;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.roadrunner.TwoDeadWheelLocalizer;
@@ -18,14 +17,11 @@ import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive.DriveLocalizer;
 @TeleOp(name = "LinupTest")
 public class TestLinup1 extends OpMode {
 
-    DcMotor frontRightMotor;
-    DcMotor frontLeftMotor;
-    DcMotor backRightMotor;
-    DcMotor backLeftMotor;
-    double posx, posy;
-
-    // Tweak this slightly if the left side still feels faster (ex: 0.95 -> 0.92)
-
+    DcMotor frontRightMotor, backLeftMotor, frontLeftMotor, backRightMotor;
+    double posx, posy, heading;
+    double targetDistance, targetX, targetY;
+    Pose2d startPose = currentPose;
+    PinpointDrive drive = new PinpointDrive(hardwareMap, startPose);
 
     @Override
     public void init() {
@@ -52,35 +48,34 @@ public class TestLinup1 extends OpMode {
         backLeftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
 
+
+
     }
 
     @Override
     public void loop() {
 
+        drive.pinpoint.update();
+
+        posx = drive.pinpoint.getPosX();
+        posy = drive.pinpoint.getPosY();
+        heading = drive.pinpoint.getHeading();
+
+        targetX = (100 - posx)*(100-posx);
+        targetY = (100 - posy)*(100-posy);
+
+        targetDistance = (Math.sqrt(targetX+targetY));
 
 
 
-        // Example: Getting the current estimated pose
-        double xCord = 0;
-        double yCord = 0;
-        Vector2d vector2d = new Vector2d(xCord, yCord);
+
+        drive.pinpoint.update();
 
         double driver = gamepad1.left_stick_y; // forward/back
         double strafe = gamepad1.left_stick_x;  // left/right
         double turn = -gamepad1.right_stick_x;   // rotation
 
         boolean shotLinup = gamepad1.dpad_up;
-
-        double targetCordx = 100;
-        double targetCordy = 100;
-
-
-        double adj = targetCordx - xCord;
-        double opp = targetCordy - yCord;
-
-        double actualAngle = 180;
-        double targetAngle = Math.atan2(opp, adj);
-        double andgleDiff = targetAngle - actualAngle;
 
         double drive_angle = 0;
         if ((shotLinup) && (gamepad1.left_stick_y != 0 || gamepad1.left_stick_x != 0)) {
@@ -108,7 +103,8 @@ public class TestLinup1 extends OpMode {
 
         // quick debug telemetry
         telemetry.update();
-        telemetry.addData("YCord", yCord);
+        telemetry.addData("X", posx);
+        telemetry.addData("Y", posy);
         telemetry.addData("drive", driver);
         telemetry.addData("strafe", strafe);
         telemetry.addData("turn", turn);
